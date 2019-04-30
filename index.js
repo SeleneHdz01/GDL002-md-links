@@ -1,139 +1,95 @@
 const fs = require("fs");
-
 const path = require("path");
+const pathFile = process.argv[2];
+const links = require("./containerLinks");
+const readingFile = links(pathFile, null);
 
-module.exports = {
-//funcion que verifica si el campo esta vacio ó lleno
-
-pathInserted: function(pathFile){
-
+/**Función que verifica si el campo esta vacio ó no */
+const pathInserted = (pathFile) =>{
   if(pathFile == undefined){
-
-    console.log("false");
-
-    return false
-
-  }
-
+  console.log("false");
+  return false
+}
   else{
-
-    return true
-
-  } 
-},
-
-//función para saber si la ruta existe
-
-pathWorking: function(pathFile){
-
-  if(fs.existsSync(pathFile)){
-
-    console.log("true");
-
-    return true
-
-  }
-
-    else{
-
-      console.log("false");}
-
-      return false
-
-    },
-
-//función para verificar si la ruta es un directorio
-
-pathDirectory: function(pathFile){
-
-  if(fs.statSync(pathFile).isDirectory()){
-
-    return true
-
-  } else{
-
-    return false
-
-  }
-},
-
-//función que revisa si es un .md
-
-pathMd: function(pathFile){
-
-  if (path.extname(pathFile) === ".md"){
-
-    return true
-
-  }
-
-  else {
-
-    return false
-  }
-},
-
-//leer el archivo
-
-readingFile: function(pathFile){
-
-  let file = fs.readFileSync(pathFile, "utf-8");
-
-  console.log(file);
-
-  return true;
-  
-  },
+  return true
+} 
 };
 
-/*readFileMd : function(pathFile, options){
 
-return new Promise((resolve, reject)=> {
+/**Función que verifica si la ruta existe o no*/
 
-  // Leer el archivo
+const pathWorking = (pathFile) =>{
+  if(fs.existsSync(pathFile)){
+  console.log("true");
+  return true
+}
+else{
+  console.log("false");
+}
+return false
+};
+    
+/**Función que verificar si la ruta es un directorio */
 
-  fs.readFile(pathFile, function(err, data){
-
-    if (err){
-
-      return reject(err);
-
-    }
-
-    resolve(data.toString());
-
-  });
-
-});
-
-},
-
-urlify: function(data) {
-
-  // console.log(txt);
-
-  const mdLinkRgEx = /\[(.+?)\]\(.+?\)/g;
-
-  const mdLinkRgEx2 = /\[(.+?)\]\((.+?)\)/;
-
-let allLinks = data.match(mdLinkRgEx);
-
-  var htmlLinks = [];
-
-  for (var x in allLinks) {
-
-    var grpdDta = mdLinkRgEx2.exec(allLinks[x]);
-
-    var linkified = "<a href=\"" + grpdDta[2] + "\">" + grpdDta[1] + "<a>";
-
-    console.log(linkified);
-
-    htmlLinks.push(linkified);
-
+const pathDirectory = (pathFile) =>{
+  if(fs.statSync(pathFile).isDirectory()){
+  return true
+} else{
+  return false
   }
+};
 
-  return htmlLinks;
+/**Función que revisa si la ruta tiene extención .md */
 
-}*/
+const pathMd = (pathFile) =>{
+  if (path.extname(pathFile) === ".md"){
+  return true
+}
+  else {
+    return false
+  }
+};
 
+/**Función leyendo el archivo */
+readingFile.then(
+  (data)=> { // On Success
+    console.log("Found links:");
+    urlify(data);
+  },
+(err)=> { // On Error
+console.error(err);
+});
+/*const readingFile = (pathFile) =>{
+  let file = fs.readFileSync(pathFile, "utf-8");
+  console.log(file);
+  return true;
+};*/
+
+function urlify(data) {
+  const mdLinkRgEx = /\[(.+?)\]\((.+?\))/g;
+  const mdLinkRgEx2 = /\[(.+?)\]\((.+?)\)/;
+  let allLinks = data.match(mdLinkRgEx);
+  let htmlLinks = [];
+  for (let x in allLinks) {
+    let grpdDta = mdLinkRgEx2.exec(allLinks[x]);
+    let grupoData = {
+    href: grpdDta[2],
+    text: grpdDta[1],
+    file: pathFile
+  }; 
+  htmlLinks.push(grupoData);   
+}
+  console.log(htmlLinks.length);
+  console.log(htmlLinks);
+  return (htmlLinks);
+}
 //console.log(module.exports.urlify("./README.md"));
+
+module.exports = {
+  "pathInserted": pathInserted,
+  "pathWorking": pathWorking,
+  "pathDirectory": pathDirectory,
+  "pathMd": pathMd,
+  "urlify": urlify,
+  "readingFile": readingFile,
+}
