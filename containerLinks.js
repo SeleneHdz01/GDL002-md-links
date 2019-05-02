@@ -6,7 +6,7 @@ module.exports = (pathFile, options)=>{
     if (err){
     return reject(err);
     }
-    resolve(data.toString());
+  resolve(data.toString());
     });
 });
 };

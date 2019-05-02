@@ -1,3 +1,3 @@
-const partCode = require("./index.js");
+const partCode = require("../index.js");
 
 partCode.readingFile("prueba.md");
