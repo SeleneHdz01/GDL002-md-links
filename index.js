@@ -3,6 +3,7 @@ const path = require("path");
 const pathFile = process.argv[2];
 const links = require("./containerLinks");
 const readingFile = links(pathFile, null);
+const request = require("request");
 
 /**Función que verifica si el campo esta vacio ó no */
 const pathInserted = (pathFile) =>{
@@ -55,15 +56,35 @@ readingFile.then(
   (data)=> { // On Success
     console.log("Found links:");
     urlify(data);
+    let htmlLinks = urlify(data);
+    //Para validar links encontrados 
+for (let i = 0; i < htmlLinks.length; i++) {
+  request(htmlLinks[i].href, (error, response, body ) => {
+    if (error){
+    console.log(htmlLinks[i].href + '  No se encontró la página');
+    htmlLinks[i].pathExist=false;
+  }
+    else{
+    const statusCode = response.statusCode;
+    // const contentType = res.headers['content-type'];
+    if (statusCode === 200){
+      console.log(htmlLinks[i].href + '  Página válida ');
+      htmlLinks[i].pathExist=true;
+      }
+    else{
+      console.log('página inválida');
+        }
+      } 
+    });
+  }
+  (err) => { // On Error
+  console.error(err);
+  }
+
   },
 (err)=> { // On Error
 console.error(err);
 });
-/*const readingFile = (pathFile) =>{
-  let file = fs.readFileSync(pathFile, "utf-8");
-  console.log(file);
-  return true;
-};*/
 
 function urlify(data) {
   const mdLinkRgEx = /\[(.+?)\]\((.+?\))/g;
@@ -83,7 +104,8 @@ function urlify(data) {
   console.log(htmlLinks);
   return (htmlLinks);
 }
-//console.log(module.exports.urlify("./README.md"));
+
+
 
 module.exports = {
   "pathInserted": pathInserted,
@@ -92,4 +114,5 @@ module.exports = {
   "pathMd": pathMd,
   "urlify": urlify,
   "readingFile": readingFile,
+  "links": links
 }
